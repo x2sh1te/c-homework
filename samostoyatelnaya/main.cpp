@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <vector>
 
-// Демонстрация полиморфизма: работа через ссылку на базовый класс
 void testFunction(const Function& f, const std::string& name, double x, double a, double b) {
     std::cout << "\n========== " << name << " ==========\n";
     std::cout << std::fixed << std::setprecision(4);
@@ -29,8 +28,8 @@ int main() {
         Exponenta expFunc(3.0, 0.5, -1.0);
         testFunction(expFunc, "Exponenta: f(x) = 3*exp(0.5x) - 1", 0.0, 0.0, 2.0);
 
-        // 4. Полином 3-й степени: f(x) = x³ - 6x² + 11x - 6 (корни: 1, 2, 3)
-        std::vector<double> polyCoeffs = { -6.0, 11.0, -6.0, 1.0 }; // a0, a1, a2, a3
+        // 4. Полином 3-й степени: f(x) = x³ - 6x² + 11x - 6 
+        std::vector<double> polyCoeffs = { -6.0, 11.0, -6.0, 1.0 };
         Polinom poly(polyCoeffs);
         testFunction(poly, "Polinom: f(x) = x^3 - 6x^2 + 11x - 6", 1.5, 0.0, 4.0);
 

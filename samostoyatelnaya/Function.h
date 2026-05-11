@@ -11,11 +11,7 @@
 class Function {
 public:
     virtual ~Function() = default;
-
-    // Чисто виртуальный метод: вычисление f(x)
     virtual double evaluate(double x) const = 0;
-
-    // Виртуальные методы с реализацией по умолчанию (численные алгоритмы)
     virtual void display(double x) const;
     virtual double differentiate(double x, double h = 1e-5) const;
     virtual double integrate(double a, double b, int steps = 10000) const;
@@ -53,7 +49,7 @@ public:
 // Полином n-й степени: f(x) = a0 + a1*x + a2*x^2 + ... + an*x^n
 class Polinom : public Function {
 private:
-    std::vector<double> coeffs; // coeffs[i] - коэффициент при x^i
+    std::vector<double> coeffs; // 
 public:
     explicit Polinom(const std::vector<double>& coeffs);
     double evaluate(double x) const override;

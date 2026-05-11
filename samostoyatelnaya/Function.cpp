@@ -1,21 +1,19 @@
 #include "function.h"
 
-// --- Реализация базового класса (численные методы) ---
+
 void Function::display(double x) const {
     std::cout << "f(" << x << ") = " << evaluate(x) << "\n";
 }
 
 double Function::differentiate(double x, double h) const {
-    // Центральная разность: f'(x) ≈ (f(x+h) - f(x-h)) / 2h
+
     return (evaluate(x + h) - evaluate(x - h)) / (2.0 * h);
 }
 
 double Function::integrate(double a, double b, int steps) const {
     if (a > b) std::swap(a, b);
     if (steps < 2) steps = 2;
-
     double h = (b - a) / steps;
-    // Метод трапеций
     double sum = 0.5 * (evaluate(a) + evaluate(b));
     for (int i = 1; i < steps; ++i) {
         sum += evaluate(a + i * h);
@@ -47,7 +45,6 @@ double Function::findMax(double a, double b, int steps) const {
     return maxVal;
 }
 
-// --- Реализация производных классов ---
 Hyperbola::Hyperbola(double k, double b) : k(k), b(b) {}
 double Hyperbola::evaluate(double x) const {
     if (std::abs(x) < 1e-9) throw std::domain_error("Hyperbola: division by zero");
@@ -68,7 +65,6 @@ Polinom::Polinom(const std::vector<double>& coeffs) : coeffs(coeffs) {
     if (coeffs.empty()) throw std::invalid_argument("Polynom: coefficients cannot be empty");
 }
 double Polinom::evaluate(double x) const {
-    // Схема Горнера для численной устойчивости
     double result = 0.0;
     for (int i = static_cast<int>(coeffs.size()) - 1; i >= 0; --i) {
         result = result * x + coeffs[i];
