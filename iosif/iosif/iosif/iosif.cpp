@@ -1,6 +1,5 @@
 #include "array.h"
 
-// конструктор
 Array::Array(int startCapacity)
 {
     if (startCapacity <= 0)
@@ -11,7 +10,6 @@ Array::Array(int startCapacity)
     size = 0;
 }
 
-// конструктор копирования
 Array::Array(const Array& arr)
 {
     ptr = new int[arr.capacity];
@@ -21,13 +19,11 @@ Array::Array(const Array& arr)
         ptr[i] = arr.ptr[i];
 }
 
-// деструктор
 Array::~Array()
 {
     delete[] ptr;
 }
 
-// оператор присваивания
 Array& Array::operator=(const Array& arr)
 {
     if (this == &arr)
@@ -45,15 +41,12 @@ Array& Array::operator=(const Array& arr)
     return *this;
 }
 
-// проверка границ
 int& Array::operator[](int index)
 {
     if (index >= size || index < 0)
         throw ArrayException();
     return ptr[index];
 }
-
-// вставка элемента по индексу
 void Array::insert(int elem, int index)
 {
     if (index < 0 || index > size)
@@ -62,21 +55,17 @@ void Array::insert(int elem, int index)
     if (size == capacity)
         increaseCapacity(size + 1);
 
-    // сдвигаем элементы вправо
     for (int j = size - 1; j >= index; j--)
         ptr[j + 1] = ptr[j];
 
     ptr[index] = elem;
     size++;
 }
-
-// вставка в конец
 void Array::insert(int elem)
 {
     insert(elem, size);
 }
 
-// удаление элемента по индексу
 void Array::remove(int index)
 {
     if (index < 0 || index >= size)
@@ -88,7 +77,6 @@ void Array::remove(int index)
     size--;
 }
 
-// увеличение вместимости
 void Array::increaseCapacity(int newCapacity)
 {
     capacity = (newCapacity < capacity * 2) ? capacity * 2 : newCapacity;
@@ -101,7 +89,6 @@ void Array::increaseCapacity(int newCapacity)
     ptr = newPtr;
 }
 
-// получение размера
 int Array::getSize() const
 {
     return size;
