@@ -1,34 +1,24 @@
-import csv
+import pandas as pd
 import matplotlib.pyplot as plt
 
-# Читаем данные из CSV
-N = []
-time = []
+df = pd.read_csv('results.csv')
 
-with open('results.csv', 'r') as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        N.append(int(row['N']))
-        time.append(float(row['Time(seconds)']))
+X_real = df['N'].values
+Y_real = df['Time(seconds)'].values
 
-# Функция для прогноза O(N²)
-def predict_O_N2(n, base_n, base_time):
-    """Прогноз времени по квадратичной зависимости"""
-    return base_time * (n / base_n) ** 2
+N_last = X_real[-1]
+Time_last = Y_real[-1]
 
-# Строим реальные данные
-plt.plot(N, time, 'o-', label='Реальные данные', color='green')
+k_coeff = Time_last / (N_last ** 2)
 
-# Строим прогноз: берём первую точку как базу
-N_predict = list(range(min(N), max(N) + 1, 1000))
-time_predict = [predict_O_N2(n, N[0], time[0]) for n in N_predict]
+X_predict = list(range(0, 2000001, 20000))
+Y_predict = [k_coeff * (n ** 2) for n in X_predict]
 
-plt.plot(N_predict, time_predict, '--', label='Прогноз O(N²)', color='red')
-
-# Оформление
-plt.xlabel('N')
-plt.ylabel('Время (сек)')
-plt.title('Зависимость времени от N')
+plt.figure(figsize=(10, 6))
+plt.scatter(X_real, Y_real, color='blue', label='Реальные данные', zorder=5)
+plt.plot(X_predict, Y_predict, color='red', linestyle='--')
+plt.title('График времени работы и прогноз')
+plt.ylabel('Время (в секундах)')
 plt.legend()
 plt.grid(True)
 plt.show()
