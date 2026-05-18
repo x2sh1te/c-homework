@@ -1,25 +1,50 @@
-import pandas as pd
-import matplotlib.pyplot as plt
+#include <iostream>
+#include <fstream>
+#include <ctime>
+#include <iomanip>
+#include "array.h"
+using namespace std;
 
-df = pd.read_csv('results.csv')
+int josephus(int N, int k)
+{
+    Array arr(N);
+    for (int i = 1; i <= N; i++)
+        arr.insert(i);
+    int pos = 0;
 
-X_real = df['N'].values
-Y_real = df['Time(seconds)'].values
+    while (arr.getSize() > 1)
+    {
+        pos = (pos + k - 1) % arr.getSize();
+        arr.remove(pos);
+    }
 
-N_last = X_real[-1]
-Time_last = Y_real[-1]
+    return arr[0];
+}
 
-k_coeff = Time_last / (N_last ** 2)
+int main()
+{
+    setlocale(LC_ALL, "Russian");
 
-X_predict = list(range(0, 2000001, 20000))
-Y_predict = [k_coeff * (n ** 2) for n in X_predict]
+    ofstream file("results.csv");
+    file << "N,k,Result,Time(seconds)" << endl;
 
-plt.figure(figsize=(10, 6))
-plt.scatter(X_real, Y_real, color='blue', label='Реальные данные', zorder=5)
-plt.plot(X_predict, Y_predict, color='red', linestyle='--', label='Прогноз $O(N^2)$')
-plt.title('График времени работы и прогноз')
-plt.xlabel('Количество людей (N)')
-plt.ylabel('Время (в секундах)')
-plt.legend()
-plt.grid(True)
-plt.show()
+    int tests[] = { 1000, 5000, 10000, 50000, 100000, 500000, 1000000 };
+    int k = 2;
+    for (int N : tests)
+    {
+        clock_t start = clock();
+        int result = josephus(N, k);
+        clock_t end = clock();
+
+        double time = double(end - start) / CLOCKS_PER_SEC;
+
+        file << N << "," << k << "," << result << ","
+            << fixed << setprecision(6) << time << endl;
+
+        cout << "N=" << N << "Результат=" << result
+            << "Время=" << time << " сек" << endl;
+    }
+    file.close();
+
+    return 0;
+}
