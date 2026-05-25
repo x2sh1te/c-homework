@@ -4,45 +4,44 @@
 #include <iostream>
 #include <set>
 #include <queue>
+#include <vector>
 #include <fstream>
 #include <map>
 #include <string>
 
+using namespace std;
+
 class Node;
 
-class Graph {
-    std::set<Node*> nodes;
-    std::map<std::string, Node*> name2node;
+typedef set<Node*>::iterator node_iterator;
 
-public:
-    Graph(const char* file_name);
-    ~Graph();
-    Node* findNode(const std::string& name);
-    void addNode(const std::string& name);
-    void addEdge(const std::string& from, const std::string& to);
-    auto begin() const { return nodes.begin(); }
-    auto end() const { return nodes.end(); }
-};
-
+// Вершина графа
 class Node {
-    std::string name;
-    std::set<Node*> neighbours;
-
-    void addNeighbour(Node* n);
-    void removeNeighbour(Node* n);
-
+    string name;
+    set<Node*> neighbours;
+    void addNeighbour(Node* neighbour);
 public:
-    Node(const std::string& n) : name(n) {}
-    const std::string& getName() const { return name; }
-    auto nb_begin() const { return neighbours.begin(); }
-    auto nb_end() const { return neighbours.end(); }
-
+    Node(const string& aname);
+    string getName() const;
+    node_iterator nb_begin();
+    node_iterator nb_end();
     friend class Graph;
 };
 
-// BFS для выделения компоненты связности
-void bfs_component(Node* start, std::set<Node*>& comp);
+// Граф
+class Graph {
+    set<Node*> nodes;
+    map<string, Node*> nodeMap;
+public:
+    Graph(const string& filename);
+    ~Graph();
+    void addNode(Node* node);
+    void addEdge(Node* begin, Node* end);
+    node_iterator begin();
+    node_iterator end();
+    vector<Graph> findComponents(); 
+    void print();                   
+    void print2file(const string& fileName); /
+};
 
-void write_component_to_file(const std::set<Node*>& comp, int id);
-
-#endif // GRAPH_H
+#endif
