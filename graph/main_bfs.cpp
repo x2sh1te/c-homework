@@ -1,33 +1,30 @@
 #include "Graph.h"
-#include <iostream>
-#include <vector>
-#include <string>
-using namespace std;
 
 int main() {
-    string file1 = "C:\Users\nikit\OneDrive\Desktop\дз c++\shape\shape\shape\testgraph.txt";
-    Graph graph1(file1.c_str());
-    vector<Graph> components1 = graph1.findGraphs();
+    // testgraph.txt
+    string file1 = "testgraph.txt"; 
+    Graph inputGraph(file1);
 
-    cout << "Количество графов в " << file1 << ": " << components1.size() << endl;
-    for (int i = 0; i < components1.size(); ++i) {
-        cout << "Граф " << i + 1 << " из " << file1 << endl;
-        components1[i].print();
-        string outFile = "C:\Users\nikit\OneDrive\Desktop\дз c++\shape\shape\shape/testgraph_comp_" +
-                         to_string(i + 1) + ".txt";
-        components1[i].print2file(outFile);
+    // Получаем ВСЕ компоненты как вектор Graph-ов 
+    vector<Graph> allComponents = inputGraph.findComponents();
+
+    cout << "Итого компонент для " << file1 << ": " << allComponents.size() << endl;
+    for (int i = 0; i < allComponents.size(); ++i) {
+        cout << "Компонента " << (i+1) << ":" << endl;
+        allComponents[i].print();
+        string outFile = "component_" + to_string(i+1) + ".txt";
+        allComponents[i].print2file(outFile);
     }
 
-    string file2 = "C:\Users\nikit\OneDrive\Desktop\дз c++\shape\shape\shape\1000.csv";
-    Graph graph2(file2.c_str());
-    vector<Graph> components2 = graph2.findGraphs();
+    // 1000.csv 
+    string file2 = "1000.csv";
+    Graph inputGraph2(file2);
+    vector<Graph> components2 = inputGraph2.findComponents();
 
-    cout << "Количество графов в " << file2 << ": " << components2.size() << endl;
+    cout << "Итого компонент для " << file2 << ": " << components2.size() << endl;
     for (int i = 0; i < components2.size(); ++i) {
-        cout << "Граф " << i + 1 << " из " << file2 << endl;
-        components2[i].print();
-        string outFile = "C:\Users\nikit\OneDrive\Desktop\дз c++\shape\shape\shape/1000_comp_" +
-                         to_string(i + 1) + ".txt";
+        cout << "Компонента " << (i+1) << " (2-й файл):" << endl;
+        string outFile = "1000_comp_" + to_string(i+1) + ".txt";
         components2[i].print2file(outFile);
     }
 
