@@ -1,28 +1,39 @@
-#include "bfs.h"
+#include "Graph.h"
 
-// ============ Node ============
+// Node 
 
-void Node::addNeighbour(Node* n) {
-    neighbours.insert(n);
-}
-void Node::removeNeighbour(Node* n) {
-    neighbours.erase(n);
-}
+Node::Node(const string& aname) { name = aname; }
+string Node::getName() const { return name; }
+node_iterator Node::nb_begin() { return neighbours.begin(); }
+node_iterator Node::nb_end() { return neighbours.end(); }
+void Node::addNeighbour(Node* neighbour) { neighbours.insert(neighbour); }
 
-// ============ Graph ============
-
-Graph::Graph(const char* file_name) {
-    std::ifstream fin(file_name);
-    if (!fin.is_open()) {
-        std::cout << "error open file " << file_name << std::endl;
+Graph::Graph(const string& filename) {
+    ifstream file(filename);
+    if (!file.is_open())
+    {
+        cout << "Не удалось открыть файл: " << filename << endl;
         exit(1);
     }
-    std::string from, to;
-    while (fin >> from >> to) {
-        addNode(from);
-        addNode(to);
-        addEdge(from, to);
+    string src, dest;
+    while (file >> src >> dest) {
+        Node* s;
+        Node* d;
+        if (nodeMap.find(src) == nodeMap.end()) {
+            s = new Node(src);
+            addNode(s);
+            nodeMap[src] = s;
+        } else s = nodeMap[src];
+
+        if (nodeMap.find(dest) == nodeMap.end()) {
+            d = new Node(dest);
+            addNode(d);
+            nodeMap[dest] = d;
+        } else d = nodeMap[dest];
+
+        addEdge(s, d);
     }
+    file.close();
 }
 
 Graph::~Graph() {
@@ -30,60 +41,83 @@ Graph::~Graph() {
         delete n;
 }
 
-void Graph::addNode(const std::string& name) {
-    if (name2node.count(name) == 0) {
-        Node* n = new Node(name);
-        nodes.insert(n);
-        name2node[name] = n;
-    }
-}
-void Graph::addEdge(const std::string& from, const std::string& to) {
-    Node* n1 = name2node[from];
-    Node* n2 = name2node[to];
-    n1->addNeighbour(n2);
-    n2->addNeighbour(n1);
-}
-Node* Graph::findNode(const std::string& name) {
-    auto it = name2node.find(name);
-    if (it == name2node.end()) return nullptr;
-    return it->second;
+void Graph::addNode(Node* node) { nodes.insert(node); }
+
+void Graph::addEdge(Node* from, Node* to) {
+    from->addNeighbour(to);
+    to->addNeighbour(from);
 }
 
-// ============= BFS обход ==============
-void bfs_component(Node* start, std::set<Node*>& comp) {
-    std::queue<Node*> q;
-    std::set<Node*> visited;
-    q.push(start);
-    while (!q.empty()) {
-        Node* n = q.front(); q.pop();
-        if (visited.count(n)) continue;
-        visited.insert(n);
-        comp.insert(n);
-        for (auto it = n->nb_begin(); it != n->nb_end(); ++it) {
-            if (!visited.count(*it))
-                q.push(*it);
+node_iterator Graph::begin() { return nodes.begin(); }
+node_iterator Graph::end() { return nodes.end(); }
+
+// Алгоритм поиска компонент 
+
+vector<Graph> Graph::findComponents() {
+    vector<Graph> result;
+    set<Node*> visited;
+
+    for (node_iterator it = nodes.begin(); it != nodes.end(); ++it) {
+        Node* start = *it;
+        if (visited.find(start) != visited.end())
+            continue;
+
+        Graph component(""); // Можно пустую строку: граф будем собирать вручную!
+        queue<Node*> q;
+        q.push(start);
+
+        while (!q.empty()) {
+            Node* n = q.front(); q.pop();
+            if (visited.find(n) != visited.end()) continue;
+            visited.insert(n);
+            Node* newNode = new Node(n->getName());
+            component.addNode(newNode);
+            component.nodeMap[newNode->getName()] = newNode;
+            for (node_iterator nb = n->nb_begin(); nb != n->nb_end(); ++nb) {
+                if (visited.find(*nb) == visited.end())
+                    q.push(*nb);
+            }
         }
+        // Восстановим рёбра внутри компоненты
+        for (node_iterator nit = component.begin(); nit != component.end(); ++nit) {
+            string oldName = (*nit)->getName();
+            Node* oldNode = nodeMap[oldName];
+            for (node_iterator nb = oldNode->nb_begin(); nb != oldNode->nb_end(); ++nb) {
+                string nbName = (*nb)->getName();
+                if (component.nodeMap.find(nbName) != component.nodeMap.end()) {
+                    component.addEdge(component.nodeMap[oldName], component.nodeMap[nbName]);
+                }
+            }
+        }
+        result.push_back(component);
+    }
+    return result;
+}
+
+//  Печать рёбер на экран и в файл
+
+void Graph::print() {
+    for (node_iterator it = nodes.begin(); it != nodes.end(); ++it) {
+        cout << (*it)->getName() << ": ";
+        for (node_iterator nb = (*it)->nb_begin(); nb != (*it)->nb_end(); ++nb)
+            cout << (*nb)->getName() << " ";
+        cout << endl;
     }
 }
 
-// ============= Запись компоненты ==============
-void write_component_to_file(const std::set<Node*>& comp, int id) {
-    std::string fname = "Component_" + std::to_string(id) + ".txt";
-    std::ofstream ofs(fname);
-    if (!ofs.is_open()) {
-        std::cout << "Ошибка открытия файла для записи: " << fname << std::endl;
-        return;
-    }
-    std::set<std::pair<std::string, std::string>> edges;
-    for (Node* n : comp) {
-        for (auto nb = n->nb_begin(); nb != n->nb_end(); ++nb) {
-            if (n->getName() < (*nb)->getName() && comp.count(*nb)) {
-                edges.insert({ n->getName(), (*nb)->getName() });
+void Graph::print2file(const string& fileName) {
+    ofstream file(fileName);
+    set<string> printedEdges;
+    for (node_iterator it = nodes.begin(); it != nodes.end(); ++it) {
+        for (node_iterator nb = (*it)->nb_begin(); nb != (*it)->nb_end(); ++nb) {
+            string a = (*it)->getName();
+            string b = (*nb)->getName();
+            string edge = (a < b) ? a + " " + b : b + " " + a;
+            if (printedEdges.find(edge) == printedEdges.end()) {
+                printedEdges.insert(edge);
+                file << edge << endl;
             }
         }
     }
-    for (const auto& e : edges) {
-        ofs << e.first << " " << e.second << "\n";
-    }
-    ofs.close();
+    file.close();
 }
