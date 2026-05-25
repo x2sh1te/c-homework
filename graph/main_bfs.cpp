@@ -1,21 +1,35 @@
-#include "bfs.h"
-#include <set>
+#include "Graph.h"
 #include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
 
 int main() {
-    Graph g("1000.csv"); 
+    string file1 = "C:\Users\nikit\OneDrive\Desktop\дз c++\shape\shape\shape\testgraph.txt";
+    Graph graph1(file1.c_str());
+    vector<Graph> components1 = graph1.findGraphs();
 
-    std::set<Node*> unexplored(g.begin(), g.end());
-    int component_no = 1;
-    while (!unexplored.empty()) {
-        Node* start = *(unexplored.begin());
-        std::set<Node*> comp;
-        bfs_component(start, comp);
-        write_component_to_file(comp, component_no);
-        std::cout << "Component " << component_no << " size: " << comp.size() << std::endl;
-        for (Node* n : comp) unexplored.erase(n);
-        ++component_no;
+    cout << "Количество графов в " << file1 << ": " << components1.size() << endl;
+    for (int i = 0; i < components1.size(); ++i) {
+        cout << "Граф " << i + 1 << " из " << file1 << endl;
+        components1[i].print();
+        string outFile = "C:\Users\nikit\OneDrive\Desktop\дз c++\shape\shape\shape/testgraph_comp_" +
+                         to_string(i + 1) + ".txt";
+        components1[i].print2file(outFile);
     }
-    std::cout << "Total components: " << component_no - 1 << std::endl;
+
+    string file2 = "C:\Users\nikit\OneDrive\Desktop\дз c++\shape\shape\shape\1000.csv";
+    Graph graph2(file2.c_str());
+    vector<Graph> components2 = graph2.findGraphs();
+
+    cout << "Количество графов в " << file2 << ": " << components2.size() << endl;
+    for (int i = 0; i < components2.size(); ++i) {
+        cout << "Граф " << i + 1 << " из " << file2 << endl;
+        components2[i].print();
+        string outFile = "C:\Users\nikit\OneDrive\Desktop\дз c++\shape\shape\shape/1000_comp_" +
+                         to_string(i + 1) + ".txt";
+        components2[i].print2file(outFile);
+    }
+
     return 0;
 }
