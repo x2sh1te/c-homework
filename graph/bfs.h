@@ -33,7 +33,7 @@ class Graph {
     set<Node*> nodes;
     map<string, Node*> nodeMap;
 public:
-    Graph(const string& filename);
+    Graph(const string& testgraph.txt);
     ~Graph();
     void addNode(Node* node);
     void addEdge(Node* begin, Node* end);
