@@ -5,7 +5,7 @@ int main() {
     string file1 = "testgraph.txt"; 
     Graph inputGraph(file1);
 
-    // Получаем ВСЕ компоненты как вектор Graph-ов 
+    // Получаем ВСЕ компоненты как вектор графов
     vector<Graph> allComponents = inputGraph.findComponents();
 
     cout << "Итого компонент для " << file1 << ": " << allComponents.size() << endl;
